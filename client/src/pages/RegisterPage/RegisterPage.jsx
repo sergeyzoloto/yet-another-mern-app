@@ -1,5 +1,3 @@
-import './RegisterPage.css';
-
 export default function RegisterPage() {
   return (
     <form className="register">
