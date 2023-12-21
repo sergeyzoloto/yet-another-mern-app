@@ -10,10 +10,12 @@ import bcryptjs from 'bcryptjs';
 const salt = bcryptjs.genSaltSync();
 import jwt from 'jsonwebtoken';
 const secret = process.env.JWT_SECRET;
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(json());
+app.use(cookieParser());
 
 // The environment should set the port
 const port = process.env.PORT;
@@ -46,6 +48,15 @@ app.post('/login', async (request, response) => {
   } else {
     response.status(400).json('wrong credentials');
   }
+});
+
+app.get('/profile', (request, response) => {
+  const { token } = request.cookies;
+  jwt.verify(token, secret, {}, (error, info) => {
+    if (error) throw error;
+    response.json(info);
+  });
+  response.json(request.cookies);
 });
 
 app.listen(port);
