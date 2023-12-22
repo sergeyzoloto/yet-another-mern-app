@@ -1,7 +1,11 @@
-import express, { json, request, response } from 'express';
+import express, { json } from 'express';
 import cors from 'cors';
 import { connect } from 'mongoose';
 import User from './models/User.js';
+
+// Handling files
+import multer from 'multer';
+const uploadMiddleware = multer({ dest: 'uploads/' });
 
 import { config } from 'dotenv';
 config();
@@ -63,6 +67,10 @@ app.get('/profile', (request, response) => {
 
 app.get('/logout', (request, response) => {
   response.cookie('token', '').json('ok');
+});
+
+app.post('/post', uploadMiddleware.single('file'), (request, response) => {
+  response.json(request.files);
 });
 
 app.listen(port);
