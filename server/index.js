@@ -22,6 +22,7 @@ const app = express();
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(json());
 app.use(cookieParser());
+app.use('/uploads', express.static('uploads'));
 
 // The environment should set the port
 const port = process.env.PORT;
@@ -80,19 +81,33 @@ app.post(
     const extension = parts[parts.length - 1];
     const newPath = path + '.' + extension;
 
-    const { title, summary, content } = request.body;
-
     fs.renameSync(path, newPath);
 
-    const PostDoc = await Post.create({
-      title,
-      summary,
-      content,
-      cover: newPath,
+    const { token } = request.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+      if (err) throw err;
+      const { title, summary, content } = request.body;
+      const postDoc = await Post.create({
+        title,
+        summary,
+        content,
+        cover: newPath,
+        author: info.id,
+      });
+      response.json(postDoc);
     });
-
-    response.json(PostDoc);
   },
 );
+
+app.get('/post', async (request, response) => {
+  response.json(
+    await Post.find()
+      .populate('author', ['username']) // populate() method
+      // is used to replace the user ObjectId field
+      // with the whole document consisting of all the user data
+      .sort({ createdAt: -1 })
+      .limit(20),
+  );
+});
 
 app.listen(port);
