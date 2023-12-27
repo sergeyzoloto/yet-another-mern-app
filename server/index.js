@@ -2,6 +2,7 @@ import express, { json } from 'express';
 import cors from 'cors';
 import { connect } from 'mongoose';
 import User from './models/User.js';
+import Post from './models/Post.js';
 import fs from 'fs';
 
 // Handling files
@@ -70,14 +71,28 @@ app.get('/logout', (request, response) => {
   response.cookie('token', '').json('ok');
 });
 
-app.post('/post', uploadMiddleware.single('file'), (request, response) => {
-  const { originalname, path } = request.file;
-  const parts = originalname.split('.');
-  const extension = parts[parts.length - 1];
+app.post(
+  '/post',
+  uploadMiddleware.single('file'),
+  async (request, response) => {
+    const { originalname, path } = request.file;
+    const parts = originalname.split('.');
+    const extension = parts[parts.length - 1];
+    const newPath = path + '.' + extension;
 
-  fs.renameSync(path, path + '.' + extension);
+    const { title, summary, content } = request.body;
 
-  response.json({ extension });
-});
+    fs.renameSync(path, newPath);
+
+    const PostDoc = await Post.create({
+      title,
+      summary,
+      content,
+      cover: newPath,
+    });
+
+    response.json(PostDoc);
+  },
+);
 
 app.listen(port);
