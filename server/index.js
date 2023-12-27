@@ -2,6 +2,7 @@ import express, { json } from 'express';
 import cors from 'cors';
 import { connect } from 'mongoose';
 import User from './models/User.js';
+import fs from 'fs';
 
 // Handling files
 import multer from 'multer';
@@ -70,7 +71,13 @@ app.get('/logout', (request, response) => {
 });
 
 app.post('/post', uploadMiddleware.single('file'), (request, response) => {
-  response.json(request.files);
+  const { originalname, path } = request.file;
+  const parts = originalname.split('.');
+  const extension = parts[parts.length - 1];
+
+  fs.renameSync(path, path + '.' + extension);
+
+  response.json({ extension });
 });
 
 app.listen(port);
