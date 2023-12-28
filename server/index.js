@@ -116,4 +116,34 @@ app.get('/post/:id', async (request, response) => {
   response.json(postDoc);
 });
 
+app.put('/post', uploadMiddleware.single('file'), async (request, response) => {
+  let newPath = null;
+  if (request.file) {
+    const { originalname, path } = request.file;
+    const parts = originalname.split('.');
+    const ext = parts[parts.length - 1];
+    newPath = path + '.' + ext;
+    fs.renameSync(path, newPath);
+  }
+
+  const { token } = request.cookies;
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const { id, title, summary, content } = request.body;
+    const postDoc = await Post.findById(id);
+    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
+    if (!isAuthor) {
+      return response.status(400).json('access denied');
+    }
+    await postDoc.update({
+      title,
+      summary,
+      content,
+      cover: newPath ? newPath : postDoc.cover,
+    });
+
+    response.json(postDoc);
+  });
+});
+
 app.listen(port);

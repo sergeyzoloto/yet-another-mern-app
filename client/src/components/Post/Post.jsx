@@ -7,7 +7,6 @@ export default function Post({
   _id,
   title,
   summary,
-  // content,
   cover,
   createdAt,
   author,
@@ -37,8 +36,7 @@ Post.propTypes = {
   _id: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   summary: PropTypes.string.isRequired,
-  content: PropTypes.string.isRequired,
   cover: PropTypes.string.isRequired,
-  createdAt: PropTypes.instanceOf(Date),
-  author: PropTypes.string.isRequired,
+  createdAt: PropTypes.string.isRequired,
+  author: PropTypes.object.isRequired,
 };
