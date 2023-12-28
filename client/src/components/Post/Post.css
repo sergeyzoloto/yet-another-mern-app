@@ -1,7 +1,8 @@
 div.post {
   border: 1px red solid;
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: 1fr;
+
   gap: 20px;
   margin-bottom: 30px;
 }
@@ -37,4 +38,15 @@ div.post p.summary {
   margin: 6px 0;
   line-height: 1.4rem;
   font-size: 0.9rem;
+}
+
+div.post div.text a {
+  text-decoration: none;
+  color: inherit;
+}
+
+@media screen and (min-width: 700px) {
+  div.post {
+    grid-template-columns: 0.9fr 1.1fr;
+  }
 }

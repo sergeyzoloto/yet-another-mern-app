@@ -110,4 +110,10 @@ app.get('/post', async (request, response) => {
   );
 });
 
+app.get('/post/:id', async (request, response) => {
+  const { id } = request.params;
+  const postDoc = await Post.findById(id).populate('author', ['username']);
+  response.json(postDoc);
+});
+
 app.listen(port);
